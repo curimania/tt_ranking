@@ -1,0 +1,36 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Neues Match</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+  <h2 class="mb-4">🏓 Neues Match eintragen</h2>
+  <form method="POST">{% csrf_token %}
+    <div class="row">
+      <div class="col">
+        <h5>Team 1</h5>
+        {% for p in players %}
+          <div class="form-check"><input class="form-check-input" type="checkbox" name="team1" value="{{ p.id }}" id="t1{{ p.id }}"><label class="form-check-label" for="t1{{ p.id }}">{{ p.name }}</label></div>
+        {% endfor %}
+      </div>
+      <div class="col">
+        <h5>Team 2</h5>
+        {% for p in players %}
+          <div class="form-check"><input class="form-check-input" type="checkbox" name="team2" value="{{ p.id }}" id="t2{{ p.id }}"><label class="form-check-label" for="t2{{ p.id }}">{{ p.name }}</label></div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <label for="winner">Gewinner:</label>
+      <select name="winner" class="form-select" id="winner">
+        <option value="1">Team 1</option>
+        <option value="2">Team 2</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary mt-3">Speichern</button>
+  </form>
+</body>
+</html>
