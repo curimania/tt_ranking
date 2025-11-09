@@ -16,3 +16,5 @@ Docker:
 Notes:
 - This is a minimal prototype for club use; edit settings.py for production settings.
 - The TrueSkill update runs automatically when a Match object is created.
+
+http://raspberrypi:6060/
