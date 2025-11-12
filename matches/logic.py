@@ -4,8 +4,16 @@ from players.models import Player
 env = trueskill.TrueSkill(draw_probability=0.01)
 
 def update_trueskill(match):
-    team1 = list(match.players_team1.all())
-    team2 = list(match.players_team2.all())
+    team1 = match.players_team1.all()
+    team2 = match.players_team2.all()
+
+    print("logic: team1:", team1)
+    print("logic: team2:", team2)
+
+    if not team1.exists() or not team2.exists():
+        print(f"[WARN] Kein vollständiges Team im Match {match.id}: "
+              f"Team1={team1.count()} Team2={team2.count()}")
+        return
 
     ratings_team1 = [env.Rating(p.mu, p.sigma) for p in team1]
     ratings_team2 = [env.Rating(p.mu, p.sigma) for p in team2]

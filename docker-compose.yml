@@ -1,11 +1,14 @@
-version: "3.8"
-
+version: "3.9"
 services:
   web:
     build: .
+    container_name: tt_ranking_web
     ports:
-      - "6060:8000"
+      - "6060:6060"  # <– hier: host:container
     volumes:
       - .:/app
     environment:
-      - DJANGO_DEBUG=True
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+      - DJANGO_SUPERUSER_PASSWORD=admin
+    command: /app/entrypoint.sh
