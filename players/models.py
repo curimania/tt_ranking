@@ -1,4 +1,5 @@
 from django.db import models
+from trueskill import Rating
 
 class Player(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -9,6 +10,9 @@ class Player(models.Model):
     def save(self, *args, **kwargs):
         self.rating = self.mu - 3 * self.sigma
         super().save(*args, **kwargs)
+
+    def get_trueskill_rating(self):
+        return Rating(mu=self.mu, sigma=self.sigma)
 
     def __str__(self):
         return f"{self.name} ({self.rating:.1f})"

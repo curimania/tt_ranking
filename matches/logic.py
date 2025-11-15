@@ -4,29 +4,35 @@ from players.models import Player
 env = trueskill.TrueSkill(draw_probability=0.01)
 
 def update_trueskill(match):
-    team1 = match.players_team1.all()
-    team2 = match.players_team2.all()
+    team1 = list(match.players_team1.all())
+    team2 = list(match.players_team2.all())
 
-    print("logic: team1:", team1)
-    print("logic: team2:", team2)
-
-    if not team1.exists() or not team2.exists():
-        print(f"[WARN] Kein vollständiges Team im Match {match.id}: "
-              f"Team1={team1.count()} Team2={team2.count()}")
+    if not team1 or not team2:
+        print("Teams unvollständig – SKIP")
         return
 
-    ratings_team1 = [env.Rating(p.mu, p.sigma) for p in team1]
-    ratings_team2 = [env.Rating(p.mu, p.sigma) for p in team2]
+    # Aktuelle Ratings der Spieler laden
+    team1_ratings = [p.get_trueskill_rating() for p in team1]
+    team2_ratings = [p.get_trueskill_rating() for p in team2]
 
+    # Gewinner bestimmen
     if match.winner == 1:
-        new_ratings = env.rate([ratings_team1, ratings_team2])
+        ranks = [0, 1]  # Team1 gewinnt
     else:
-        new_ratings = env.rate([ratings_team2, ratings_team1])
-        new_ratings = new_ratings[::-1]
+        ranks = [1, 0]  # Team2 gewinnt
 
-    flat = new_ratings[0] + new_ratings[1]
-    players = team1 + team2
-    for player, rating in zip(players, flat):
-        player.mu = rating.mu
-        player.sigma = rating.sigma
+    # TrueSkill updaten
+    new_team1, new_team2 = env.rate([team1_ratings, team2_ratings], ranks=ranks)
+
+    # Neue Werte in Player-Modelle speichern
+    for player, new_rating in zip(team1, new_team1):
+        player.trueskill_mu = new_rating.mu
+        player.trueskill_sigma = new_rating.sigma
         player.save()
+
+    for player, new_rating in zip(team2, new_team2):
+        player.trueskill_mu = new_rating.mu
+        player.trueskill_sigma = new_rating.sigma
+        player.save()
+
+    print(">> TRUE SKILL erfolgreich aktualisiert")
